@@ -416,16 +416,22 @@ def parse_spikeglx_fname(fname):
     stream_kind: str or None
         The data type identifier, "lf" or "ap" or None
     """
-    r = re.findall(r"(\S*)_g(\d*)_t(\d*)\.(\S*).(ap|lf)", fname)
+    r = re.findall(r"(\S*)_g(\d*)_t(\d*|cat)\.(\S*).(ap|lf)", fname)
     if len(r) == 1:
         # standard case with probe
-        run_name, gate_num, trigger_num, device, stream_kind = r[0]
+        filename = r[0]
+        run_name, gate_num, trigger_num, device, stream_kind = filename
+        if "_tcat." in filename:
+            trigger_num = 0
     else:
-        r = re.findall(r"(\S*)_g(\d*)_t(\d*)\.(\S*)", fname)
+        r = re.findall(r"(\S*)_g(\d*)_t(\d*|cat)\.(\S*)", fname)
         if len(r) == 1:
             # case for nidaq
+            filename = r[0]
             run_name, gate_num, trigger_num, device = r[0]
             stream_kind = None
+            if "_tcat." in filename:
+                trigger_num = 0
         else:
             # the naming do not correspond lets try something more easy
             # example: sglx_xxx.imec0.ap
